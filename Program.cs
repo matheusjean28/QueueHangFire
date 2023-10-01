@@ -20,6 +20,8 @@ builder.Services.AddHangfire(configuration => configuration
                 .UseSQLiteStorage());
 
 var app = builder.Build();
+app.UseHangfireDashboard();
+
 app.UseRouting();
 app.MapControllers();
 app.UseRouting();
@@ -27,5 +29,16 @@ app.UseRouting();
 app.MapHangfireDashboard("/hangfire", new DashboardOptions
 {
 });
+
+
+var jobId = BackgroundJob.Enqueue(
+    () => Console.WriteLine("Job Fire-and-forget!"));
+
+
+var jobId2 = BackgroundJob.Enqueue(() => Console.WriteLine("Job fire-and-forget pai!"));
+
+BackgroundJob.ContinueJobWith(
+    jobId,
+    () => Console.WriteLine($"Job continuation! (Job pai: {jobId})"));
 
 app.Run();
