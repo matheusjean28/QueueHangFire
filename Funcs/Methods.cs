@@ -1,7 +1,6 @@
 using CustomExceptionFun;
 using System.Text.RegularExpressions;
 using DeviceContext;
-using DeviceContext;
 using MethodsInterfaces;
 using Microsoft.EntityFrameworkCore;
 namespace MethodsFuncs
