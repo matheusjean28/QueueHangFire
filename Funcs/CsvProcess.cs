@@ -7,10 +7,14 @@ using CsvHelper.Configuration;
 using CsvHelper;
 using Microsoft.AspNetCore.Http;
 using MethodsFuncs;
+using DeviceContext;
+using CustomExceptionFun;
 namespace CsvProcessFuncs
 {
     public class ReadCsv : IRead
     {
+        private readonly string folderName = "Temp";
+        private readonly string folderPath = Directory.GetCurrentDirectory();
         public async Task<IEnumerable<ResponseMacList>> ReadCsvItens(IFormFile file, DeviceDb db)
         {
             List<ResponseMacList> processingResults = new();
@@ -70,7 +74,7 @@ namespace CsvProcessFuncs
 
                     foreach (var item in macList)
                     {
-                        await db.MacstoDbs.AddAsync(item);
+                        await db.Devices.AddAsync(item);
                     }
                 }
                 catch (MacAlreadyExistsException ex)
