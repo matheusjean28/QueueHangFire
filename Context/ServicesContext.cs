@@ -1,3 +1,4 @@
+using CsvFileModels;
 using Microsoft.EntityFrameworkCore;
 using MacDeviceModels;
 
@@ -9,6 +10,7 @@ public class DeviceDb : DbContext
         : base(options) { }
 
     public DbSet<MacDevice> Devices => Set<MacDevice>();
+    public DbSet<CsvFile> CsvFiles => Set<CsvFile>();
     
 
 }

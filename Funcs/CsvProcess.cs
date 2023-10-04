@@ -37,9 +37,7 @@ namespace CsvProcessFuncs
             if(file != null )
             {
 
-
-
-            using Stream stream = file.OpenReadStream();
+            using var stream = new MemoryStream(file.Data);
             using var reader = new StreamReader(stream);
             using var csv = new CsvReader(reader, config);
 
