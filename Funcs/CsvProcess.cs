@@ -1,4 +1,5 @@
 using ResponseMacListModel;
+using GetFileCsvSavedFromServer1Funcs;
 using MacDeviceModels;
 using Read.Interfaces;
 using System.Text.RegularExpressions;
@@ -15,8 +16,9 @@ namespace CsvProcessFuncs
     {
         private readonly string folderName = "Temp";
         private readonly string folderPath = Directory.GetCurrentDirectory();
-        public async Task<IEnumerable<ResponseMacList>> ReadCsvItens(IFormFile file, DeviceDb db)
+        public async Task<IEnumerable<ResponseMacList>> ReadCsvItens(int id, DeviceDb db)
         {
+            GetFileCsvSaved getFileCsvSaved = new();
             List<ResponseMacList> processingResults = new();
             var _folderPath = folderPath;
             if (!Directory.Exists(folderName))
@@ -31,6 +33,11 @@ namespace CsvProcessFuncs
             {
                 PrepareHeaderForMatch = args => args.Header.ToLower(),
             };
+            var file = await getFileCsvSaved.GetCsvOnDatabaseAsync(db, 52);
+            if(file != null )
+            {
+
+
 
             using Stream stream = file.OpenReadStream();
             using var reader = new StreamReader(stream);
@@ -99,7 +106,7 @@ namespace CsvProcessFuncs
                     await File.AppendAllTextAsync(Path.Combine(_folderPath, "Error.csv"), errorMessage);
                     continue;
                 }
-            }
+            }}
             await db.SaveChangesAsync();
 
             return processingResults;

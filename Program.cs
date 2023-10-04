@@ -45,6 +45,8 @@ app.UseSwaggerUI(options =>
     options.RoutePrefix = string.Empty;
 });
 
+
+
 app.MapHangfireDashboard("/hangfire", new DashboardOptions
 {
 });
@@ -56,14 +58,5 @@ app.UseRouting();
 
 
 
-// var jobId = BackgroundJob.Enqueue(
-//     () => Console.WriteLine("Job Fire-and-forget!"));
-
-
-// var jobId2 = BackgroundJob.Enqueue(() => Console.WriteLine("Job fire-and-forget pai!"));
-
-// BackgroundJob.ContinueJobWith(
-//     jobId,
-//     () => Console.WriteLine($"Job continuation! (Job pai: {jobId})"));
 
 app.Run();
