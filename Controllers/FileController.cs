@@ -46,7 +46,7 @@ namespace FileControllerControllers
         public async Task<IActionResult> ProcessCsv(int id)
         {
             ReadCsv readCsv = new();
-            await readCsv.ReadCsvItens(id,_db);
+            await readCsv.ReadCsvItens(id,_db); 
 
             return Ok("Processing csv.");
         }
