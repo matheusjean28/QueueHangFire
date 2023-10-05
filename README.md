@@ -65,5 +65,3 @@ Se tudo correr corretamente, você pode acessar a interface Swagger UI no seguin
 
 [Swagger UI](http://localhost:5000/index.html)
 ```
-
-This Markdown file now includes language selection options at the beginning of the document, allowing readers to choose between English and Portuguese versions.
