@@ -33,7 +33,7 @@ namespace CsvProcessFuncs
             {
                 PrepareHeaderForMatch = args => args.Header.ToLower(),
             };
-            var file = await getFileCsvSaved.GetCsvOnDatabaseAsync(db, 2);
+            var file = await getFileCsvSaved.GetCsvOnDatabaseAsync(db, id);
             if(file != null )
             {
 
@@ -68,7 +68,6 @@ namespace CsvProcessFuncs
 
                         string errorMessage = $"\n[Error Occurred at {DateTime.Now}] - Invalid Model: {device.Model}, MAC: {device.Mac}";
                         await File.AppendAllTextAsync(Path.Combine(_folderPath, "Error.csv"), errorMessage);
-                        continue;
                     }
                     else
                     {
@@ -102,7 +101,6 @@ namespace CsvProcessFuncs
 
                     string errorMessage = $"\n[Error Occurred at {DateTime.Now}] - {ex.Message}";
                     await File.AppendAllTextAsync(Path.Combine(_folderPath, "Error.csv"), errorMessage);
-                    continue;
                 }
             }}
             await db.SaveChangesAsync();

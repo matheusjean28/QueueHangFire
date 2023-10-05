@@ -1,8 +1,10 @@
-using CsvFileModels;
-using DeviceContext;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using DeviceContext;
+using CsvProcessFuncs;
+using CsvFileModels;
+using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
+using System.Runtime.Intrinsics.Arm;
 
 namespace FileControllerControllers
 {
@@ -10,6 +12,13 @@ namespace FileControllerControllers
     [Route("/")]
     public class FileController : ControllerBase
     {
+        private readonly DeviceDb _db;
+
+        public FileController(DeviceDb db)
+        {
+            _db = db;
+        }
+
         [HttpPost("Upload")]
         public async Task<IActionResult> UploadFile(DeviceDb db, IFormFile file)
         {
@@ -31,6 +40,15 @@ namespace FileControllerControllers
             await db.SaveChangesAsync();
             var FileName = csvFile.FileName;
             return Ok($"{FileName} was send with sucess");
+        }
+
+        [HttpPost("process-csv")]
+        public async Task<IActionResult> ProcessCsv(int id)
+        {
+            ReadCsv readCsv = new();
+            await readCsv.ReadCsvItens(id,_db);
+
+            return Ok("Processing csv.");
         }
 
         [HttpGet("upload")]
