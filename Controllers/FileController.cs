@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
+using ReciveAndProcessCsvServices;
 using DeviceContext;
 using CsvProcessFuncs;
 using CsvFileModels;
@@ -43,12 +44,14 @@ namespace FileControllerControllers
         }
 
         [HttpPost("process-csv")]
-        public async Task<IActionResult> ProcessCsv(int id)
+public IActionResult ProcessCsv(DeviceDb db, int id)
         {
             ReadCsv readCsv = new();
-            await readCsv.ReadCsvItens(id,_db); 
+            ReciveAndProcessCsv processCsv = new(db);
+            processCsv.ReciveAndProcessAsync(id, db);
 
-            return Ok("Processing csv.");
+
+    return Ok("Processing csv.");
         }
 
         [HttpGet("upload")]

@@ -1,0 +1,3 @@
+Read file csv and put them in a queue.
+
+Solve Json serialize bug, search for what fix that >> here now

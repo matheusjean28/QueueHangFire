@@ -1,4 +1,7 @@
 using DeviceContext;
+using CsvFileModels;
+using CsvProcessFuncs;
+using Hangfire;
 
 namespace ReciveAndProcessCsvServices
 {
@@ -9,5 +12,15 @@ namespace ReciveAndProcessCsvServices
         {
             _db = db;
         }
+
+        public void ReciveAndProcessAsync(int id,DeviceDb db)
+        {   
+            ReadCsv readCsv = new();
+             BackgroundJob.Enqueue(() => readCsv.ReadCsvItens(id, db));
+            
+        }
+        
+        
+        
     }
 }
