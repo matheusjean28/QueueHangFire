@@ -5,7 +5,12 @@ using CsvProcessFuncs;
 using CsvFileModels;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
-using System.Runtime.Intrinsics.Arm;
+using Hangfire;
+using System;
+using System.IO;
+using System.Threading.Tasks;
+using CsvSerializeDataViewModels;
+using System.Diagnostics;
 
 namespace FileControllerControllers
 {
@@ -21,45 +26,57 @@ namespace FileControllerControllers
         }
 
         [HttpPost("Upload")]
-        public async Task<IActionResult> UploadFile(DeviceDb db, IFormFile file)
-        {
-
-            if (file == null || file.Length == 0)
-            {
-                return BadRequest("File can not be empty .");
-            }
-
-            using var memoryStream = new MemoryStream();
-            await file.CopyToAsync(memoryStream);
-            var csvFile = new CsvFile
-            {
-                FileName = file.FileName,
-                Data = memoryStream.ToArray()
-            };
-
-            db.CsvFiles.Add(csvFile);
-            await db.SaveChangesAsync();
-            var FileName = csvFile.FileName;
-            return Ok($"{FileName} was send with sucess");
-        }
-
-        [HttpPost("process-csv")]
-public IActionResult ProcessCsv(DeviceDb db, int id)
-        {
-            ReadCsv readCsv = new();
-            ReciveAndProcessCsv processCsv = new(db);
-            processCsv.ReciveAndProcessAsync(id, db);
-
-
-    return Ok("Processing csv.");
-        }
-
-        [HttpGet("upload")]
-        public async Task<IActionResult> GetAllAsync(DeviceDb db)
+        public async Task<IActionResult> UploadFile(IFormFile file)
         {
             try
             {
-                var AllCsv = await db.CsvFiles.ToListAsync();
+                if (file == null || file.Length == 0)
+                {
+                    return BadRequest("File can not be empty.");
+                }
+
+                using var memoryStream = new MemoryStream();
+                await file.CopyToAsync(memoryStream);
+                var csvFile = new CsvFile
+                {
+                    FileName = file.FileName,
+                    Data = memoryStream.ToArray()
+                };
+
+                _db.CsvFiles.Add(csvFile);
+                await _db.SaveChangesAsync();
+                var FileName = csvFile.FileName;
+                return Ok($"{FileName} was sent successfully.");
+            }
+            catch (Exception ex)
+            {
+                return BadRequest($"Error on file upload: {ex.Message}");
+            }
+        }
+
+        [HttpPost("process-csv")]
+        public IActionResult ProcessCsv(int id, DeviceDb db)
+        {
+            try
+            {
+                ReciveAndProcessCsv reciveAndProcessCsv = new(db);
+                BackgroundJob.Enqueue(() => reciveAndProcessCsv.ProcessCsvInBackground(id));
+
+                return Accepted($"CSV processing for ID {id} has been enqueued.");
+            }
+            catch (Exception ex)
+            {
+                return BadRequest($"Error on processing CSV: {ex.Message}");
+            }
+        }
+
+
+        [HttpGet("upload")]
+        public async Task<IActionResult> GetAllAsync()
+        {
+            try
+            {
+                var AllCsv = await _db.CsvFiles.ToListAsync();
                 return Ok(AllCsv);
             }
             catch (Exception ex)
@@ -67,5 +84,21 @@ public IActionResult ProcessCsv(DeviceDb db, int id)
                 return BadRequest($"Error on locate files: {ex.Message}");
             }
         }
+
+        [HttpGet("MacsExists")]
+        public async Task<IActionResult> GetExistentMacsync()
+        {
+            try
+            {
+                var AllCsv = await _db.Devices.ToListAsync();
+                return Ok(AllCsv);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest($"Error on locate files: {ex.Message}");
+            }
+        }
+
+
     }
 }
