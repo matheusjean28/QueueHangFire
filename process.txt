@@ -1,3 +1,5 @@
-Read file csv and put them in a queue.
+Read file csv and put them in a queue. >> ok
 
-Solve Json serialize bug, search for what fix that >> here now
+Solve Json serialize bug, search for what fix that >> ok
+
+Make this aplicattion recive a mensage from the first server

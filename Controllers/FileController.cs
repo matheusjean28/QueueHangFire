@@ -11,6 +11,7 @@ using System.IO;
 using System.Threading.Tasks;
 using CsvSerializeDataViewModels;
 using System.Diagnostics;
+using Microsoft.AspNetCore.Http.HttpResults;
 
 namespace FileControllerControllers
 {
@@ -68,6 +69,12 @@ namespace FileControllerControllers
             {
                 return BadRequest($"Error on processing CSV: {ex.Message}");
             }
+        }
+
+         [HttpPost("recive-process")]
+        public IActionResult Recive(int id)
+        {
+         return Ok($"the id has recived with sucess");
         }
 
 
