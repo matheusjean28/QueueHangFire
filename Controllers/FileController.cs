@@ -61,10 +61,11 @@ namespace FileControllerControllers
         {
             try
             {
+                var idNumber = id;
                 ReciveAndProcessCsv reciveAndProcessCsv = new(db);
                 BackgroundJob.Enqueue(() => reciveAndProcessCsv.ProcessCsvInBackground(id));
 
-                return Accepted($"CSV processing for ID {id.ToInt64} has been enqueued.");
+                return Accepted($"CSV processing for ID {idNumber} has been enqueued.");
             }
             catch (Exception ex)
             {
@@ -72,10 +73,10 @@ namespace FileControllerControllers
             }
         }
 
-         [HttpPost("recive-process")]
+        [HttpPost("recive-process")]
         public IActionResult Recive(int id)
         {
-         return Ok($"the id has recived with sucess");
+            return Ok($"the id has recived with sucess");
         }
 
 
@@ -107,6 +108,19 @@ namespace FileControllerControllers
             }
         }
 
+        [HttpDelete("DeleteMacsExists/{id}")]
+        public async Task<IActionResult> DeleteExistentMacsync(int id, DeviceDb db)
+        {
+            var _deletedItem = await db.CsvFiles.FindAsync(id);
+            if(_deletedItem == null)
+            {
+                return BadRequest($"item {id} was not found!");
+            }
+             db.CsvFiles.Remove(_deletedItem);
+            await db.SaveChangesAsync();
+            return Ok($"item {id} was deleted!");
+        }
 
+
+        }
     }
-}
