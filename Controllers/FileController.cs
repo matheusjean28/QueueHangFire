@@ -44,7 +44,6 @@ namespace FileControllerControllers
                     FileName = file.FileName,
                     Data = memoryStream.ToArray()
                 };
-
                 _db.CsvFiles.Add(csvFile);
                 await _db.SaveChangesAsync();
                 var FileName = csvFile.FileName;
@@ -65,20 +64,13 @@ namespace FileControllerControllers
                 ReciveAndProcessCsv reciveAndProcessCsv = new(db);
                 BackgroundJob.Enqueue(() => reciveAndProcessCsv.ProcessCsvInBackground(id));
 
-                return Accepted($"CSV processing for ID {idNumber} has been enqueued.");
+                return Ok($"CSV processing for ID {idNumber} has been enqueued.");
             }
             catch (Exception ex)
             {
                 return BadRequest($"Error on processing CSV: {ex.Message}");
             }
         }
-
-        [HttpPost("recive-process")]
-        public IActionResult Recive(int id)
-        {
-            return Ok($"the id has recived with sucess");
-        }
-
 
         [HttpGet("upload")]
         public async Task<IActionResult> GetAllAsync()
@@ -120,7 +112,5 @@ namespace FileControllerControllers
             await db.SaveChangesAsync();
             return Ok($"item {id} was deleted!");
         }
-
-
         }
     }
