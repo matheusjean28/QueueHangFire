@@ -12,7 +12,7 @@ builder.Services.AddSwaggerGen(c =>
 {
     c.SwaggerDoc("v1", new OpenApiInfo { Title = "ReaderCsvProcess", Version = "v1" });
 });
-builder.Services.AddDbContext<DeviceDb>(opt => opt.UseSqlite("Data Source=Mac.db"));
+builder.Services.AddDbContext<DeviceDb>(opt => opt.UseSqlite("Data Source=C:\\dev\\database\\Mac.db"));
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
@@ -24,7 +24,7 @@ builder.Services.AddHangfire(configuration => configuration
     .SetDataCompatibilityLevel(CompatibilityLevel.Version_170)
     .UseSimpleAssemblyNameTypeSerializer()
     .UseRecommendedSerializerSettings()
-    .UseSQLiteStorage("Workers.db"));
+    .UseSQLiteStorage("Data Source=C:\\dev\\database\\Workers.db"));
 
 builder.Services.AddHangfireServer();
 builder.Services.AddControllers();
