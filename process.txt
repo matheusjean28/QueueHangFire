@@ -8,3 +8,5 @@ Problems to Solve:
     -   when an file was queued and something is error, trigger a mensage to first server   
     -   AutoMapper to class that´s not find
     -   Protect Routes to unauthorized acess
+
+Connect at another database 
