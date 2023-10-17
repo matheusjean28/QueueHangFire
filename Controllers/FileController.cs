@@ -1,18 +1,11 @@
 using Microsoft.AspNetCore.Mvc;
 using ReciveAndProcessCsvServices;
 using DeviceContext;
-using CsvProcessFuncs;
+using MainDatabaseContext;
 using CsvFileModels;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using Hangfire;
-using System;
-using System.IO;
-using System.Threading.Tasks;
-using CsvSerializeDataViewModels;
-using System.Diagnostics;
-using Microsoft.AspNetCore.Http.HttpResults;
-using Hangfire.Storage.SQLite;
 
 namespace FileControllerControllers
 {
@@ -21,12 +14,15 @@ namespace FileControllerControllers
     public class FileController : ControllerBase
     {
         private readonly DeviceDb _db;
+        private readonly MainDatabase _mainDatabase;
 
-        public FileController(DeviceDb db)
+        public FileController(DeviceDb db, MainDatabase mainDatabase)
         {
+            _mainDatabase = mainDatabase;
             _db = db;
         }
 
+        //route test 
         [HttpPost("Upload")]
         public async Task<IActionResult> UploadFile(IFormFile file)
         {
@@ -56,12 +52,12 @@ namespace FileControllerControllers
         }
 
         [HttpPost("process-csv")]
-        public IActionResult ProcessCsv(int id, DeviceDb db)
+        public IActionResult ProcessCsv(int id)
         {
             try
             {
                 var idNumber = id;
-                ReciveAndProcessCsv reciveAndProcessCsv = new(db);
+                ReciveAndProcessCsv reciveAndProcessCsv = new(_db, _mainDatabase);
                 BackgroundJob.Enqueue(() => reciveAndProcessCsv.ProcessCsvInBackground(id));
 
                 return Ok($"CSV processing for ID {idNumber} has been enqueued.");
@@ -71,6 +67,7 @@ namespace FileControllerControllers
                 return BadRequest($"Error on processing CSV: {ex.Message}");
             }
         }
+
 
         [HttpGet("upload")]
         public async Task<IActionResult> GetAllAsync()
@@ -104,13 +101,13 @@ namespace FileControllerControllers
         public async Task<IActionResult> DeleteExistentMacsync(int id, DeviceDb db)
         {
             var _deletedItem = await db.CsvFiles.FindAsync(id);
-            if(_deletedItem == null)
+            if (_deletedItem == null)
             {
                 return BadRequest($"item {id} was not found!");
             }
-             db.CsvFiles.Remove(_deletedItem);
+            db.CsvFiles.Remove(_deletedItem);
             await db.SaveChangesAsync();
             return Ok($"item {id} was deleted!");
         }
-        }
     }
+}

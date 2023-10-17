@@ -8,13 +8,14 @@ using CsvHelper;
 using MethodsFuncs;
 using DeviceContext;
 using CustomExceptionFun;
+using MainDatabaseContext;
 namespace CsvProcessFuncs
 {
     public class ReadCsv : IRead
     {
         private readonly string folderName = "Temp";
         private readonly string folderPath = Directory.GetCurrentDirectory();
-        public async Task<IEnumerable<ResponseMacList>> ReadCsvItens(int id, DeviceDb db)
+        public async Task<IEnumerable<ResponseMacList>> ReadCsvItens(int id, DeviceDb db, MainDatabase mainDatabase)
         {
             GetFileCsvSaved getFileCsvSaved = new();
             List<ResponseMacList> processingResults = new();
@@ -76,7 +77,7 @@ namespace CsvProcessFuncs
 
                     foreach (var item in macList)
                     {
-                        await db.Devices.AddAsync(item);
+                        await mainDatabase.DevicesToMain.AddAsync(item);
                     }
                 }
                 catch (MacAlreadyExistsException ex)
