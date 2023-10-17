@@ -3,7 +3,7 @@ using Hangfire.Storage.SQLite;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.DependencyInjection;
 using DeviceContext;
-
+using MainDatabaseContext;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
 
@@ -13,6 +13,8 @@ builder.Services.AddSwaggerGen(c =>
     c.SwaggerDoc("v1", new OpenApiInfo { Title = "ReaderCsvProcess", Version = "v1" });
 });
 builder.Services.AddDbContext<DeviceDb>(opt => opt.UseSqlite("Data Source=C:\\dev\\database\\Mac.db"));
+builder.Services.AddDbContext<MainDatabase>(opt => opt.UseSqlite("Data Source=C:\\dev\\database\\MainDatabase.db"));
+
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
