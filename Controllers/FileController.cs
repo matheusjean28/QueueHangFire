@@ -6,6 +6,8 @@ using CsvFileModels;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using Hangfire;
+using Microsoft.Extensions.Logging;
+using CsvProcessFuncs;
 
 namespace FileControllerControllers
 {
@@ -13,12 +15,16 @@ namespace FileControllerControllers
     [Route("/")]
     public class FileController : ControllerBase
     {
+        private readonly ILogger<ReadCsv> _logger;
+
         private readonly DeviceDb _db;
         private readonly MainDatabase _mainDatabase;
 
-        public FileController(DeviceDb db, MainDatabase mainDatabase)
+        public FileController(DeviceDb db, MainDatabase mainDatabase, ILogger<ReadCsv> logger)
         {
             _mainDatabase = mainDatabase;
+            _logger = logger;
+
             _db = db;
         }
 
@@ -57,8 +63,8 @@ namespace FileControllerControllers
             try
             {
                 var idNumber = id;
-                ReciveAndProcessCsv reciveAndProcessCsv = new(_db, _mainDatabase);
-                BackgroundJob.Enqueue(() => reciveAndProcessCsv.ReciveAndProcessAsync(id, _mainDatabase));
+                ReciveAndProcessCsv reciveAndProcessCsv = new(_db, _mainDatabase, _logger);
+                reciveAndProcessCsv.ReciveAndProcessAsync(id, _mainDatabase);
 
                 return Ok($"CSV processing for ID {idNumber} has been enqueued.");
             }
@@ -100,12 +106,12 @@ namespace FileControllerControllers
         [HttpDelete("DeleteMacsExists/{id}")]
         public async Task<IActionResult> DeleteExistentMacsync(int id)
         {
-            var _deletedItem = await  _mainDatabase.DevicesToMain.FindAsync(id);
+            var _deletedItem = await _mainDatabase.DevicesToMain.FindAsync(id);
             if (_deletedItem == null)
             {
                 return BadRequest($"item {id} was not found!");
             }
-             _mainDatabase.DevicesToMain.Remove(_deletedItem);
+            _mainDatabase.DevicesToMain.Remove(_deletedItem);
             await _mainDatabase.SaveChangesAsync();
             return Ok($"item {id} was deleted!");
         }

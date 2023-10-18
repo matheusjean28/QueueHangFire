@@ -10,3 +10,6 @@ Problems to Solve:
     -   Protect Routes to unauthorized acess
 
 Connect at another database 
+
+possible problem:
+    processvcsv func has a bad working

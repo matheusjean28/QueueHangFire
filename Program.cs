@@ -6,6 +6,7 @@ using DeviceContext;
 using MainDatabaseContext;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
+using Microsoft.Extensions.Logging;
 
 var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddSwaggerGen(c =>
@@ -14,7 +15,10 @@ builder.Services.AddSwaggerGen(c =>
 });
 builder.Services.AddDbContext<DeviceDb>(opt => opt.UseSqlite("Data Source=C:\\dev\\database\\Mac.db"));
 builder.Services.AddDbContext<MainDatabase>(opt => opt.UseSqlite("Data Source=C:\\dev\\database\\MainDatabase.db"));
-
+builder.Services.AddLogging(builder =>
+{
+    builder.AddConsole(); 
+});
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();

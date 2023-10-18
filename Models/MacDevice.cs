@@ -5,7 +5,7 @@ namespace MacDeviceModels
 {
     public class MacDevice
     {
-             public int Id { get; set; }
+        public int Id { get; set; }
 
         [MaxLength(100)]
         public string Model { get; set; } = string.Empty;
