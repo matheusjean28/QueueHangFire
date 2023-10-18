@@ -102,6 +102,7 @@ namespace CsvProcessFuncs
                     await File.AppendAllTextAsync(Path.Combine(_folderPath, "Error.csv"), errorMessage);
                 }
             }}
+            await mainDatabase.SaveChangesAsync();
             await db.SaveChangesAsync();
 
             return processingResults;

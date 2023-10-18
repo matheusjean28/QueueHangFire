@@ -37,12 +37,12 @@ namespace FileControllerControllers
                 await file.CopyToAsync(memoryStream);
                 var csvFile = new CsvFile
                 {
-                    FileName = file.FileName,
+                    Name = file.FileName,
                     Data = memoryStream.ToArray()
                 };
                 _db.CsvFiles.Add(csvFile);
                 await _db.SaveChangesAsync();
-                var FileName = csvFile.FileName;
+                var FileName = csvFile.Name;
                 return Ok($"{FileName} was sent successfully.");
             }
             catch (Exception ex)
@@ -58,7 +58,7 @@ namespace FileControllerControllers
             {
                 var idNumber = id;
                 ReciveAndProcessCsv reciveAndProcessCsv = new(_db, _mainDatabase);
-                BackgroundJob.Enqueue(() => reciveAndProcessCsv.ProcessCsvInBackground(id));
+                BackgroundJob.Enqueue(() => reciveAndProcessCsv.ReciveAndProcessAsync(id, _mainDatabase));
 
                 return Ok($"CSV processing for ID {idNumber} has been enqueued.");
             }
@@ -88,7 +88,7 @@ namespace FileControllerControllers
         {
             try
             {
-                var AllCsv = await _db.Devices.ToListAsync();
+                var AllCsv = await _mainDatabase.DevicesToMain.ToListAsync();
                 return Ok(AllCsv);
             }
             catch (Exception ex)
@@ -98,15 +98,15 @@ namespace FileControllerControllers
         }
 
         [HttpDelete("DeleteMacsExists/{id}")]
-        public async Task<IActionResult> DeleteExistentMacsync(int id, DeviceDb db)
+        public async Task<IActionResult> DeleteExistentMacsync(int id)
         {
-            var _deletedItem = await db.CsvFiles.FindAsync(id);
+            var _deletedItem = await  _mainDatabase.DevicesToMain.FindAsync(id);
             if (_deletedItem == null)
             {
                 return BadRequest($"item {id} was not found!");
             }
-            db.CsvFiles.Remove(_deletedItem);
-            await db.SaveChangesAsync();
+             _mainDatabase.DevicesToMain.Remove(_deletedItem);
+            await _mainDatabase.SaveChangesAsync();
             return Ok($"item {id} was deleted!");
         }
     }
