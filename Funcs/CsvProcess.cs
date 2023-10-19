@@ -24,7 +24,7 @@ namespace CsvProcessFuncs
         public async Task<IEnumerable<ResponseMacList>> ReadCsvItens(int id, DeviceDb db, MainDatabase mainDatabase)
         {
             GetFileCsvSaved getFileCsvSaved = new();
-            List<ResponseMacList> processingResults = new();
+            List<ResponseMacList> processingResults = new List<ResponseMacList>();
             var _folderPath = folderPath;
             if (!Directory.Exists(folderName))
             {
@@ -33,7 +33,7 @@ namespace CsvProcessFuncs
             _folderPath = Path.GetFullPath(folderName);
 
 
-            List<MacDevice> macList = new();
+            List<MacDevice> macList = new List<MacDevice>();
             var config = new CsvConfiguration(CultureInfo.InvariantCulture)
             {
                 PrepareHeaderForMatch = args => args.Header.ToLower(),
@@ -55,40 +55,45 @@ namespace CsvProcessFuncs
                         Methods methods = new();
                         ResponseMacList result = new();
 
-                        var checkStrin = await methods.IsValidMacAddress(db, device.Mac);
+                        var checkStrin = await methods.IsValidMacAddress(mainDatabase, device.Mac);
 
                         if (checkStrin != null)
                         {
                             result.Mac = device.Mac;
                             result.MacExists = false;
                             result.CreatedSuccessfully = true;
-                            result.Message = $"The {device.Mac} was created with sucess!";
+                            result.Message = $"The {device.Mac} was created with success!";
                             processingResults.Add(result);
 
                             deviceItem.Mac = device.Mac;
-                        }
 
-                        if (device.Model.Length < 1 || device.Model.Length > 98)
-                        {
+                            if (device.Model.Length < 1 || device.Model.Length > 98)
+                            {
+                                string errorMessage = $"\n[Error Occurred at {DateTime.Now}] - Invalid Model: {device.Model}, MAC: {device.Mac}";
+                                await File.AppendAllTextAsync(Path.Combine(_folderPath, "Error.csv"), errorMessage);
+                            }
+                            else
+                            {
+                                deviceItem.Model = device.Model;
+                            }
 
-                            string errorMessage = $"\n[Error Occurred at {DateTime.Now}] - Invalid Model: {device.Model}, MAC: {device.Mac}";
-                            await File.AppendAllTextAsync(Path.Combine(_folderPath, "Error.csv"), errorMessage);
+                            macList.Add(deviceItem);
+
+                            foreach (var item in macList)
+                            {
+                                await mainDatabase.DevicesToMain.AddAsync(item);
+                            }
                         }
                         else
                         {
-                            deviceItem.Model = device.Model;
+                            string errorMessage = $"\n[Error Occurred at {DateTime.Now}] - Invalid Model: {device.Model}, MAC: {device.Mac}";
+                            await File.AppendAllTextAsync(Path.Combine(_folderPath, "Error.csv"), errorMessage);
                         }
 
-                        macList.Add(deviceItem);
-
-                        foreach (var item in macList)
-                        {
-                            await mainDatabase.DevicesToMain.AddAsync(item);
-                        }
                     }
                     catch (MacAlreadyExistsException ex)
                     {
-                        _logger.LogError(ex, ex.Message);
+                        _logger.LogError(ex, "here " );
                         ResponseMacList result = new()
                         {
                             Mac = device.Mac,
@@ -115,7 +120,12 @@ namespace CsvProcessFuncs
                     }
                 }
             }
-            await mainDatabase.SaveChangesAsync();
+            if (macList.Any())
+            {
+                await mainDatabase.DevicesToMain.AddRangeAsync(macList);
+                await mainDatabase.SaveChangesAsync();
+            }
+
             await db.SaveChangesAsync();
 
             return processingResults;

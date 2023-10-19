@@ -3,6 +3,7 @@ using System.Text.RegularExpressions;
 using DeviceContext;
 using MethodsInterfaces;
 using Microsoft.EntityFrameworkCore;
+using MainDatabaseContext;
 namespace MethodsFuncs
 {
     public class Methods : IMethods
@@ -35,13 +36,14 @@ namespace MethodsFuncs
             }
         }
 
-        public async Task<string> IsValidMacAddress(DeviceDb db, string mac)
+        public async Task<string> IsValidMacAddress(MainDatabase db, string mac)
         {
             List<string> AlreadyExistsMacs = new();
             string pattern = @"^([0-9A-Fa-f]{2}[:-]){5}([0-9A-Fa-f]{2})$";
             var MatchMac = Regex.IsMatch(mac, pattern).ToString();
 
-             var _checkMac = await db.Devices.FirstOrDefaultAsync(item => item.Mac == mac);
+            //verificar no novo contexto
+             var _checkMac = await db.DevicesToMain.FirstOrDefaultAsync(item => item.Mac == mac);
             if (_checkMac != null)
             {
                 AlreadyExistsMacs.Add(mac);
