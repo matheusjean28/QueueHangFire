@@ -12,4 +12,5 @@ Problems to Solve:
 Connect at another database 
 
 possible problem:
-    processvcsv func has a bad working
+    processvcsv func has a bad working >> solved
+    duplicate macs allowed´s
