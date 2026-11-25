@@ -45,3 +45,8 @@ Hangfire.db
 Mac.db
 *.db-shm
 *.db-wal
+# Bancos de dados locais
+*.db
+*.db-shm
+*.db-wal
+*.sqlite
